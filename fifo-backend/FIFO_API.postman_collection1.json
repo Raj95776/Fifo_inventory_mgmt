@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "FIFO Backend API",
+    "_postman_id": "fifo-api-collection-001",
+    "description": "Collection to test FIFO Material Management Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Create Material",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cement\",\n  \"description\": \"High quality cement\",\n  \"unit\": \"Bags\",\n  \"category\": \"Construction\",\n  \"minStockLevel\": 10\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4000/materials",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["materials"]
+        }
+      }
+    },
+    {
+      "name": "Get All Materials",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/materials",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["materials"]
+        }
+      }
+    },
+    {
+      "name": "Add GRN",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"materialId\": 1,\n  \"quantity\": 100,\n  \"rate\": 350,\n  \"grnNumber\": \"GRN-001\",\n  \"supplierName\": \"UltraTech\",\n  \"receivedDate\": \"2025-08-17\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4000/grns",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["grns"]
+        }
+      }
+    },
+    {
+      "name": "Get All GRNs",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/grns",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["grns"]
+        }
+      }
+    },
+    {
+      "name": "Create Issue Note (FIFO)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"materialId\": 1,\n  \"quantity\": 40,\n  \"issueNumber\": \"ISS-001\",\n  \"issueDate\": \"2025-08-18\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4000/issue-notes",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["issue-notes"]
+        }
+      }
+    },
+    {
+      "name": "Get All Issue Notes",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/issue-notes",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["issue-notes"]
+        }
+      }
+    },
+    {
+      "name": "Get Reports",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/reports",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4000",
+          "path": ["reports"]
+        }
+      }
+    }
+  ]
+}

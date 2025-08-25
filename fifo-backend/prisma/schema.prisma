@@ -1,0 +1,70 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Material {
+  id            Int          @id @default(autoincrement())
+  name          String
+  description   String?
+  unit          String
+  category      String?
+  minStockLevel Int          @default(0)
+  isActive      Boolean      @default(true)
+
+  // Relations
+  grns       Grn[]
+  issueNotes IssueNote[]
+  issueItems IssueItem[]
+}
+
+model Grn {
+  id           Int       @id @default(autoincrement())
+  grnNumber    String
+  materialId   Int
+  quantity     Int
+  remaining    Int
+  rate         Float
+  amount       Float       // required: stored value (qty * rate)
+  supplierName String
+  receivedDate DateTime
+  isActive     Boolean     @default(true)
+
+  // Relations
+  material   Material  @relation(fields: [materialId], references: [id])
+  issueItems IssueItem[]
+}
+
+model IssueNote {
+  id            Int         @id @default(autoincrement())
+  issueNumber   String
+  issueDate     DateTime
+  materialId    Int
+  totalQuantity Int         // total issued quantity
+  totalAmount   Float       // total issued value
+  weightedRate  Float       // weighted average rate
+  isActive      Boolean     @default(true)
+
+  // Relations
+  material Material   @relation(fields: [materialId], references: [id])
+  items    IssueItem[]
+}
+
+model IssueItem {
+  id          Int       @id @default(autoincrement())
+  issueNoteId Int
+  grnId       Int
+  materialId  Int
+  quantity    Int
+  amount      Float     // quantity * rate
+  rate        Float
+
+  // Relations
+  issueNote IssueNote @relation(fields: [issueNoteId], references: [id])
+  grn       Grn       @relation(fields: [grnId], references: [id])
+  material  Material  @relation(fields: [materialId], references: [id])
+}

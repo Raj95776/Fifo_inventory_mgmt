@@ -1,0 +1,309 @@
+{
+  "info": {
+    "name": "FIFO Backend API",
+    "_postman_id": "f0a5f41d-1234-4567-89ab-fifo-backend",
+    "description": "Collection to exercise the FIFO Backend API (Express + Prisma + PostgreSQL). Uses a baseUrl variable so you can switch environments easily.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+            "description": "Quick health check for the API."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Materials",
+      "item": [
+        {
+          "name": "Get Materials (active only by default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/materials", "host": ["{{baseUrl}}"], "path": ["materials"] }
+          }
+        },
+        {
+          "name": "Get Materials (include inactive)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/materials?includeInactive=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials"],
+              "query": [{ "key": "includeInactive", "value": "1" }]
+            },
+            "description": "Returns both active and inactive materials."
+          }
+        },
+        {
+          "name": "Get Materials (all)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/materials?all=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials"],
+              "query": [{ "key": "all", "value": "1" }]
+            },
+            "description": "Alias to include inactive; returns all materials."
+          }
+        },
+        {
+          "name": "Add Material",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bricks\",\n  \"description\": \"Clay bricks\",\n  \"unit\": \"Pieces\",\n  \"category\": \"Construction\",\n  \"minStockLevel\": 500\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/materials", "host": ["{{baseUrl}}"], "path": ["materials"] }
+          }
+        },
+        {
+          "name": "Get Material by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/materials/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Material",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bricks\",\n  \"description\": \"Clay bricks (updated)\",\n  \"unit\": \"Pieces\",\n  \"category\": \"Construction\",\n  \"minStockLevel\": 600\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/materials/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials", "1"]
+            }
+          }
+        },
+        {
+          "name": "Soft Delete Material",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/materials/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials", "1"]
+            }
+          }
+        },
+        {
+          "name": "Restore Material",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/materials/1/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["materials", "1", "restore"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GRNs",
+      "item": [
+        {
+          "name": "Get GRNs (active only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/grns", "host": ["{{baseUrl}}"], "path": ["grns"] }
+          }
+        },
+        {
+          "name": "Add GRN",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": 1,\n  \"quantity\": 200,\n  \"rate\": 375,\n  \"grnNumber\": \"GRN-003\",\n  \"supplierName\": \"LMN Supplier\",\n  \"receivedDate\": \"2025-08-17\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/grns", "host": ["{{baseUrl}}"], "path": ["grns"] }
+          }
+        },
+        {
+          "name": "Get GRN by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/grns/1", "host": ["{{baseUrl}}"], "path": ["grns", "1"] }
+          }
+        },
+        {
+          "name": "Update GRN",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 220,\n  \"rate\": 380,\n  \"grnNumber\": \"GRN-003\",\n  \"supplierName\": \"LMN Supplier\",\n  \"receivedDate\": \"2025-08-18\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/grns/1", "host": ["{{baseUrl}}"], "path": ["grns", "1"] },
+            "description": "Server validates remaining cannot go below already issued."
+          }
+        },
+        {
+          "name": "Soft Delete GRN",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/grns/1", "host": ["{{baseUrl}}"], "path": ["grns", "1"] }
+          }
+        },
+        {
+          "name": "Restore GRN",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/grns/1/restore", "host": ["{{baseUrl}}"], "path": ["grns", "1", "restore"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issue Notes",
+      "item": [
+        {
+          "name": "Get Issue Notes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/issue-notes", "host": ["{{baseUrl}}"], "path": ["issue-notes"] }
+          }
+        },
+        {
+          "name": "Add Issue Note (FIFO)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": 1,\n  \"quantity\": 50,\n  \"issueNumber\": \"ISS-002\",\n  \"issueDate\": \"2025-08-17\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/issue-notes", "host": ["{{baseUrl}}"], "path": ["issue-notes"] },
+            "description": "Consumes GRNs by receivedDate (ascending)."
+          }
+        },
+        {
+          "name": "Preview Issue Note (no DB writes)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": 1,\n  \"quantity\": 50\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/issue-notes/preview", "host": ["{{baseUrl}}"], "path": ["issue-notes", "preview"] }
+          }
+        },
+        {
+          "name": "Get Issue Note by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/issue-notes/1", "host": ["{{baseUrl}}"], "path": ["issue-notes", "1"] }
+          }
+        },
+        {
+          "name": "Update Issue Note (header only)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issueNumber\": \"ISS-002-REV\",\n  \"issueDate\": \"2025-08-18\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/issue-notes/1", "host": ["{{baseUrl}}"], "path": ["issue-notes", "1"] }
+          }
+        },
+        {
+          "name": "Delete Issue Note (hard delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/issue-notes/1", "host": ["{{baseUrl}}"], "path": ["issue-notes", "1"] },
+            "description": "Cascades to delete its items."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Current Stock (All Materials)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/stock/current", "host": ["{{baseUrl}}"], "path": ["stock", "current"] }
+          }
+        },
+        {
+          "name": "Stock Movements (Server-side filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stock/movements?materialId=1&start=2025-08-14&end=2025-08-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["stock", "movements"],
+              "query": [
+                { "key": "materialId", "value": "1" },
+                { "key": "start", "value": "2025-08-14" },
+                { "key": "end", "value": "2025-08-20" }
+              ]
+            },
+            "description": "Returns both GRN and ISSUE rows ordered by date."
+          }
+        },
+        {
+          "name": "Stock Valuation (Weighted Average)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/stock/valuation", "host": ["{{baseUrl}}"], "path": ["stock", "valuation"] }
+          }
+        },
+        {
+          "name": "Legacy Reports (combined)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/reports", "host": ["{{baseUrl}}"], "path": ["reports"] },
+            "description": "Combined report from server (used by earlier UI)."
+          }
+        }
+      ]
+    }
+  ]
+}
