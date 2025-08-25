@@ -96,7 +96,7 @@ const MaterialDetails: React.FC = () => {
         >
           ⬅ Back
         </button>
-        <div style={{ opacity: 0.8 }}>⏳ Loading material details…</div>
+        <div style={{ opacity: 0.8 }}>Loading material details…</div>
       </div>
     );
   }
