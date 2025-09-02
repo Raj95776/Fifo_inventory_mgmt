@@ -68,3 +68,15 @@ model IssueItem {
   grn       Grn       @relation(fields: [grnId], references: [id])
   material  Material  @relation(fields: [materialId], references: [id])
 }
+
+model Demand {
+  id         Int      @id @default(autoincrement())
+  materialId Int
+  date       DateTime
+  qtyOut     Float
+
+  material   Material @relation(fields: [materialId], references: [id])
+
+  @@index([materialId, date])
+}
+

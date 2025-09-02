@@ -2,14 +2,24 @@ import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
+import mlRoutes from "./routers/ml.routes";
+import dotenv from "dotenv";
+import stockMLRoutes from "./routers/stock-ml.routes";
+
+dotenv.config();
 
 const app = express();
 const port = 4000;
 const prisma = new PrismaClient();
 
 // allow frontend requests from port 3000
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors());
 app.use(bodyParser.json());
+
+// ------------------ ML ROUTES ------------------
+app.use(mlRoutes);
+app.use(stockMLRoutes);
+
 
 // ------------------ HEALTH CHECK ------------------
 app.get("/", (req: Request, res: Response) => {

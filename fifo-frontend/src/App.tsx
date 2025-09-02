@@ -6,6 +6,7 @@ import GRNs from "./pages/GRNs";
 import IssueNotes from "./pages/IssueNotesList";     
 import NewIssueNote from "./pages/NewIssueNote"; 
 import Reports from "./pages/Reports";
+import SkuInsights from "./components/SkuInsights";
 
 const App: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const App: React.FC = () => {
           <Route path="/issue-notes" element={<IssueNotes />} />
           <Route path="/new-issue" element={<NewIssueNote />} />
           <Route path="/reports" element={<Reports />} />
-          {/* Fallback */}
+          <Route path="/insights" element={<SkuInsights />}/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

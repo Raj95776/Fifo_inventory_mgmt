@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+// ⛔ removed SkuWidget import
+import ReorderBoard from "../components/ReorderBoard"; // ✅ uses ML for ALL materials
 
 /* ---------- Types ---------- */
-type Material = { id: number; name: string; unit: string; category?: string | null };
 type CurrentStockRow = {
   materialId: number; name: string; unit: string; category?: string | null;
   totalReceived: number; totalIssued: number; totalRemaining: number;
@@ -47,24 +48,14 @@ const compact = (n: number) => {
 /* ---------- Tiny SVG Charts (no deps) ---------- */
 function BarChart({ data, height = 140 }: { data: { label: string; value: number }[]; height?: number }) {
   const max = Math.max(1, ...data.map(d => d.value));
-  const bw = 26;
-  const gap = 18;
-  const leftPad = 10;
-  const rightPad = 10;
-  const base = height - 26;
+  const bw = 26, gap = 18, leftPad = 10, rightPad = 10, base = height - 26;
   const w = Math.max(300, leftPad + rightPad + data.length * (bw + gap));
-
   const steps = 4;
   const gridYs = Array.from({length: steps+1}, (_,i)=> base - (i/steps)*(base-14));
-
   return (
     <svg width="100%" viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bar chart">
       <rect x={0} y={0} width={w} height={height} fill="transparent" />
-
-      {gridYs.map((gy, i)=>(
-        <line key={i} x1={leftPad} y1={gy} x2={w-rightPad} y2={gy} stroke="#263056" strokeWidth={1} opacity={0.35} />
-      ))}
-
+      {gridYs.map((gy, i)=>(<line key={i} x1={leftPad} y1={gy} x2={w-rightPad} y2={gy} stroke="#263056" strokeWidth={1} opacity={0.35} />))}
       {data.map((d, i) => {
         const h = (d.value / max) * (base - 12);
         const x = leftPad + i * (bw + gap);
@@ -74,15 +65,12 @@ function BarChart({ data, height = 140 }: { data: { label: string; value: number
             <rect x={x} y={y} width={bw} height={h} rx={7} fill="url(#gradBar)" />
             <text x={x + bw / 2} y={y - 6} textAnchor="middle" fontSize="10" fill="#e5e7eb">{compact(Math.round(d.value))}</text>
             <g transform={`translate(${x + bw / 2}, ${base + 10}) rotate(-28)`}>
-              <text textAnchor="end" fontSize="10" fill="#94a3b8">
-                <tspan>{d.label}</tspan>
-              </text>
+              <text textAnchor="end" fontSize="10" fill="#94a3b8"><tspan>{d.label}</tspan></text>
               <title>{d.label}</title>
             </g>
           </g>
         );
       })}
-
       <defs>
         <linearGradient id="gradBar" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#8b5cf6" />
@@ -119,7 +107,7 @@ function DonutChart({ parts, size = 160 }: { parts: { label: string; value: numb
   );
 }
 
-function LineChart({ points, height = 140 }: { points: { x: string; y: number }[]; height?: number }) {
+function LineChartMini({ points, height = 140 }: { points: { x: string; y: number }[]; height?: number }) {
   const w = Math.max(260, points.length * 56);
   const max = Math.max(1, ...points.map(p => p.y));
   const base = height - 24;
@@ -161,7 +149,7 @@ const Dashboard: React.FC = () => {
         api.get<ValuationRow[]>("/stock/valuation"),
       ]);
       setCurrent(cur.data);
-      setMovements(mov.data.slice(-12)); // last 12 rows
+      setMovements(mov.data.slice(-12));
       setValuation(val.data);
     } catch (e: any) {
       setErr(e?.response?.data?.error || "Failed to load dashboard");
@@ -186,19 +174,13 @@ const Dashboard: React.FC = () => {
   }, [current]);
 
   const valBars = useMemo(() => {
-    return valuation
-      .slice()
-      .sort((a,b) => b.valuation - a.valuation)
-      .slice(0, 7)
-      .map(v => {
-        const short = makeShortLabel(v.name, v.unit, 16);
-        return { label: short, value: Math.round(v.valuation) };
-      });
+    return valuation.slice().sort((a,b) => b.valuation - a.valuation).slice(0, 7).map(v => {
+      const short = makeShortLabel(v.name, v.unit, 16);
+      return { label: short, value: Math.round(v.valuation) };
+    });
   }, [valuation]);
 
-  const flowSeries = useMemo(() => {
-    return movements.map((m, idx) => ({ x: (idx+1).toString(), y: Math.round(Math.abs(m.amount)) }));
-  }, [movements]);
+  const flowSeries = useMemo(() => movements.map((m, idx) => ({ x: (idx+1).toString(), y: Math.round(Math.abs(m.amount)) })), [movements]);
 
   return (
     <div style={page}>
@@ -208,63 +190,32 @@ const Dashboard: React.FC = () => {
           <div style={{ opacity: .7, marginTop: 6 }}>Quick glance at inventory health. Use the links to jump into details.</div>
         </div>
         <div style={actionsRow}>
-          <button
-            style={btnPrimary}
+          <button style={btnPrimary}
             onMouseDown={(e)=>((e.currentTarget.style.transform="translateY(1px)"))}
             onMouseUp={(e)=>((e.currentTarget.style.transform="translateY(0)"))}
-            onClick={()=>navigate("/materials")}
-            aria-label="Go to Materials"
-          >
-            Materials
-          </button>
-          <button
-            style={btnPrimary}
+            onClick={()=>navigate("/materials")} aria-label="Go to Materials">Materials</button>
+          <button style={btnPrimary}
             onMouseDown={(e)=>((e.currentTarget.style.transform="translateY(1px)"))}
             onMouseUp={(e)=>((e.currentTarget.style.transform="translateY(0)"))}
-            onClick={()=>navigate("/grns")}
-            aria-label="Go to GRNs"
-          >
-            GRNs
-          </button>
-          <button
-            style={btnPrimary}
+            onClick={()=>navigate("/grns")} aria-label="Go to GRNs">GRNs</button>
+          <button style={btnPrimary}
             onMouseDown={(e)=>((e.currentTarget.style.transform="translateY(1px)"))}
             onMouseUp={(e)=>((e.currentTarget.style.transform="translateY(0)"))}
-            onClick={()=>navigate("/issue-notes")}
-            aria-label="Go to Issue Notes"
-          >
-            New Issue
-          </button>
-          <button
-            style={btnGhost}
+            onClick={()=>navigate("/issue-notes")} aria-label="Go to Issue Notes">New Issue</button>
+          <button style={btnGhost}
             onMouseEnter={(e)=>((e.currentTarget.style.borderColor="#3b4369"))}
             onMouseLeave={(e)=>((e.currentTarget.style.borderColor="#2a2f45"))}
-            onClick={()=>navigate("/reports")}
-            aria-label="Go to Reports"
-          >
-            Reports
-          </button>
+            onClick={()=>navigate("/reports")} aria-label="Go to Reports">Reports</button>
+          {/* ⛔ removed ML Insights button (separate page will handle preview) */}
         </div>
       </div>
 
       {/* KPIs */}
       <div style={kpiGrid}>
-        <div style={card}>
-          <div style={{ opacity:.7, fontSize:12 }}>Tracked Materials</div>
-          <div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{stats.totalItems}</div>
-        </div>
-        <div style={card}>
-          <div style={{ opacity:.7, fontSize:12 }}>On-Hand Quantity</div>
-          <div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{stats.totalQty.toLocaleString()}</div>
-        </div>
-        <div style={card}>
-          <div style={{ opacity:.7, fontSize:12 }}>Below Min Level</div>
-          <div style={{ fontSize:32, fontWeight:800, marginTop:6, color: stats.belowMin? "#fca5a5" : "#86efac" }}>{stats.belowMin}</div>
-        </div>
-        <div style={card}>
-          <div style={{ opacity:.7, fontSize:12 }}>Stock Valuation</div>
-          <div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{fmtINR(stats.invValue)}</div>
-        </div>
+        <div style={card}><div style={{ opacity:.7, fontSize:12 }}>Tracked Materials</div><div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{stats.totalItems}</div></div>
+        <div style={card}><div style={{ opacity:.7, fontSize:12 }}>On-Hand Quantity</div><div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{stats.totalQty.toLocaleString()}</div></div>
+        <div style={card}><div style={{ opacity:.7, fontSize:12 }}>Below Min Level</div><div style={{ fontSize:32, fontWeight:800, marginTop:6, color: stats.belowMin? "#fca5a5" : "#86efac" }}>{stats.belowMin}</div></div>
+        <div style={card}><div style={{ opacity:.7, fontSize:12 }}>Stock Valuation</div><div style={{ fontSize:32, fontWeight:800, marginTop:6 }}>{fmtINR(stats.invValue)}</div></div>
       </div>
 
       {/* Charts */}
@@ -282,8 +233,7 @@ const Dashboard: React.FC = () => {
               <div>
                 {categoryParts.map((p, i)=>(
                   <div key={i} style={{ display:"flex", justifyContent:"space-between", gap:8, fontSize:13, marginBottom:6 }}>
-                    <span style={{ opacity:.85 }}>{p.label}</span>
-                    <b>{p.value}</b>
+                    <span style={{ opacity:.85 }}>{p.label}</span><b>{p.value}</b>
                   </div>
                 ))}
                 {categoryParts.length === 0 && <div style={{ opacity:.7 }}>No category data.</div>}
@@ -293,8 +243,15 @@ const Dashboard: React.FC = () => {
         </div>
         <div style={glass}>
           <div style={{ marginBottom: 8, fontWeight: 700 }}>Recent Flow (abs Amount)</div>
-          {loading ? "Loading…" : <LineChart points={flowSeries} />}
+          {loading ? "Loading…" : <LineChartMini points={flowSeries} />}
           {!loading && flowSeries.length === 0 && <div style={{ opacity:.7, marginTop:8 }}>No recent movements.</div>}
+        </div>
+      </div>
+
+      {/* ✅ NEW: Auto-ML Reorder suggestions for EVERY material */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(420px,1fr))", gap: 16, marginTop: 16 }}>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <ReorderBoard leadTimeDays={5} />
         </div>
       </div>
 
